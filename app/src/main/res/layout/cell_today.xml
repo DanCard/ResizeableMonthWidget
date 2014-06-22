@@ -1,0 +1,9 @@
+<!--
+    cell_today.xml
+  -->
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/CalendarCell"
+    android:textSize="16sp"
+    android:background="@color/background_today"
+    android:textColor="@color/foreground_today" />

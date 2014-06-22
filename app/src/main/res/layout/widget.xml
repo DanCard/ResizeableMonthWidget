@@ -1,0 +1,50 @@
+<!--
+    widget.xml
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/month_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="-8dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/prev_month_button" style="?android:borderlessButtonStyle"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/previous_month"
+            android:src="@drawable/ic_action_previous_item" />
+
+        <Button
+            android:id="@+id/month_label"
+            style="?android:borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed"
+            android:gravity="center"
+            android:textColor="@color/foreground_full"
+            android:textSize="16sp" />
+
+        <ImageButton
+            android:id="@+id/next_month_button" style="?android:borderlessButtonStyle"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/next_month"
+            android:src="@drawable/ic_action_next_item" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/calendar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical" />
+
+</LinearLayout>

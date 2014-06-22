@@ -1,0 +1,5 @@
+<!--
+    cell_day.xml
+  -->
+
+<TextView style="@style/CalendarCell" />
