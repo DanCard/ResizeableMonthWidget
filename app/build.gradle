@@ -4,11 +4,11 @@ android {
     compileSdkVersion 19
     buildToolsVersion '19.1.0'
     defaultConfig {
-        applicationId 'dancar.daymonthwidget'
+        applicationId 'dancar.resizeablewidget'
         minSdkVersion 16
         targetSdkVersion 19
-        versionCode 1
-        versionName '1.0'
+        versionCode 4
+        versionName '1.0.3'
     }
     signingConfigs {
         release {

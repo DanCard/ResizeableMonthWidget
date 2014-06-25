@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -93,24 +94,24 @@ public class ResizeableMonthWidget extends AppWidgetProvider {
         Bundle widgetOptions = appWidgetManager.getAppWidgetOptions(appWidgetId);
         boolean shortMonthName = false;
         boolean width1Col = false;
-        boolean oneWeekView = false;
-        boolean useCurrentMonth = true;
+        boolean oneOrTwoWeekView = false;
+        boolean onlyUseCurrentMonth = true;
         boolean oneByOne = false;
         boolean startAtFirstOfMonth = false;
         int numWeeks = 6;
         if (widgetOptions != null) {
             int minWidthDp = widgetOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
             int minHeightDp = widgetOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
-            shortMonthName = minWidthDp < NUM_CELLS_2;
+            shortMonthName = minWidthDp < NUM_CELLS_3;
             width1Col = minWidthDp < NUM_CELLS_2;
             boolean heightLessThan3 = minHeightDp < NUM_CELLS_3;
             if (heightLessThan3) {
                 numWeeks = minHeightDp < NUM_CELLS_2 ? 1 : 2;
             }
-            oneWeekView = heightLessThan3;
+            oneOrTwoWeekView = heightLessThan3;
             oneByOne = width1Col && numWeeks == 1;
-            useCurrentMonth = oneByOne || oneWeekView || width1Col;
-            startAtFirstOfMonth = numWeeks == 6 && !width1Col;
+            onlyUseCurrentMonth = oneByOne || oneOrTwoWeekView || width1Col;
+            startAtFirstOfMonth = numWeeks == 6;
         }
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
@@ -118,10 +119,9 @@ public class ResizeableMonthWidget extends AppWidgetProvider {
 
         Calendar cal = Calendar.getInstance();
         int today = cal.get(Calendar.DAY_OF_YEAR);
-        int todayDayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
         int currentYear = cal.get(Calendar.YEAR);
         int thisMonth;
-        if (useCurrentMonth) {
+        if (onlyUseCurrentMonth) {
             thisMonth = cal.get(Calendar.MONTH);
         } else {
             thisMonth = sp.getInt(PREF_MONTH, cal.get(Calendar.MONTH));
@@ -129,22 +129,26 @@ public class ResizeableMonthWidget extends AppWidgetProvider {
             cal.set(Calendar.DAY_OF_MONTH, 1);
             cal.set(Calendar.MONTH, thisMonth);
             cal.set(Calendar.YEAR, thisYear);
+            Log.d("thisMonth: " + thisMonth, "thisYear: " + thisYear);
         }
         rv.setTextViewText(R.id.month_label, DateFormat.format(
                 shortMonthName ? "MMM yy" : "MMMM yyyy", cal));
 
+        int todayDayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+        Log.d("onlyUseCurrentMonth: " + onlyUseCurrentMonth, "todayDayOfWeek: " + todayDayOfWeek);
         if (!oneByOne) {
             // Set the first day we start displaying the calendar
+            Log.d("startAtFirstOfMonth: " + startAtFirstOfMonth, "oneOrTwoWeekView: " + oneOrTwoWeekView + " \t " + "width1Col : " + width1Col);
             if (startAtFirstOfMonth) {
+                Log.d("", "startAtFirstOfMonth is true");
                 cal.set(Calendar.DAY_OF_MONTH, 1);
-            } else if (oneWeekView) {
-                cal.add(Calendar.DAY_OF_MONTH, 1 - todayDayOfWeek);
-            } else if (width1Col) {
-                cal.set(Calendar.DAY_OF_MONTH, todayDayOfWeek);
-            }
-            if (startAtFirstOfMonth || width1Col) {
                 int monthStartDayOfWeek = todayDayOfWeek;
                 cal.add(Calendar.DAY_OF_MONTH, 1 - monthStartDayOfWeek);
+                if (width1Col) {
+                    cal.add(Calendar.DAY_OF_MONTH, todayDayOfWeek + 1);
+                }
+            } else if (!width1Col) {
+                cal.add(Calendar.DAY_OF_MONTH, 1 - todayDayOfWeek);
             }
         }
 
@@ -176,14 +180,19 @@ public class ResizeableMonthWidget extends AppWidgetProvider {
                 } else if (inMonth) {
                     cellLayoutResId = R.layout.cell_day_this_month;
                 }
-                if (!width1Col || day == todayDayOfWeek) {
-                    RemoteViews cellRv = new RemoteViews(context.getPackageName(), cellLayoutResId);
-                    cellRv.setTextViewText(android.R.id.text1,
-                            Integer.toString(cal.get(Calendar.DAY_OF_MONTH)));
-                    if (isFirstOfMonth) {
-                        cellRv.setTextViewText(R.id.month_label, DateFormat.format("MMM", cal));
-                    }
-                    rowRv.addView(R.id.row_week, cellRv);
+                RemoteViews cellRv = new RemoteViews(context.getPackageName(), cellLayoutResId);
+                cellRv.setTextViewText(android.R.id.text1,
+                        Integer.toString(cal.get(Calendar.DAY_OF_MONTH)));
+                if (isFirstOfMonth) {
+                    cellRv.setTextViewText(R.id.month_label, DateFormat.format("MMM", cal));
+                }
+                rowRv.addView(R.id.row_week, cellRv);
+                if (oneByOne) {
+                    break;
+                }
+                if (width1Col) {
+                    cal.add(Calendar.DAY_OF_MONTH, 7);
+                    break;
                 }
                 cal.add(Calendar.DAY_OF_MONTH, 1);
             }
