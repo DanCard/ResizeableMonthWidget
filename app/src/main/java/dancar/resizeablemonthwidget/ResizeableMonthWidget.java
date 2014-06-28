@@ -131,8 +131,13 @@ public class ResizeableMonthWidget extends AppWidgetProvider {
             cal.set(Calendar.YEAR, thisYear);
             Log.d("thisMonth: " + thisMonth, "thisYear: " + thisYear);
         }
-        rv.setTextViewText(R.id.month_label, DateFormat.format(
-                shortMonthName ? "MMM yy" : "MMMM yyyy", cal));
+        CharSequence month;
+        if (oneByOne) {
+            month = DateFormat.format("MMM", cal);
+        } else {
+            month = DateFormat.format(shortMonthName ? "MMM yy" : "MMMM yyyy", cal);
+        }
+        rv.setTextViewText(R.id.month_label, month);
 
         int todayDayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
         Log.d("onlyUseCurrentMonth: " + onlyUseCurrentMonth, "todayDayOfWeek: " + todayDayOfWeek);
@@ -143,9 +148,10 @@ public class ResizeableMonthWidget extends AppWidgetProvider {
                 Log.d("", "startAtFirstOfMonth is true");
                 cal.set(Calendar.DAY_OF_MONTH, 1);
                 int monthStartDayOfWeek = todayDayOfWeek;
-                cal.add(Calendar.DAY_OF_MONTH, 1 - monthStartDayOfWeek);
                 if (width1Col) {
-                    cal.add(Calendar.DAY_OF_MONTH, todayDayOfWeek + 1);
+                    cal.add(Calendar.DAY_OF_MONTH, todayDayOfWeek - 1);
+                } else {
+                    cal.add(Calendar.DAY_OF_MONTH, 1 - monthStartDayOfWeek);
                 }
             } else if (!width1Col) {
                 cal.add(Calendar.DAY_OF_MONTH, 1 - todayDayOfWeek);
